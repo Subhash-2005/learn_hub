@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnHub - Online Learning Platform</title>
+    <link rel="stylesheet" href="index.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/log.jpeg" alt="LearnHub Logo">
+        </div>
+        
+        <button class="menu-toggle" aria-label="Toggle navigation" onclick="toggleMenu()">☰</button>
+
+        <nav>
+            <ul id="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#courses">Courses</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+
+        <div class="auth-buttons">
+            <a href="login.html"><button class="login-btn">Login</button></a>
+            <a href="signup.html"><button class="signup-btn">Sign Up</button></a>
+        </div>
+    </header>
+    
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-text">
+                <h1>Welcome to LearnHub</h1>
+                <p>Your ultimate platform to learn, grow, and succeed.</p>
+            </div>
+        </section>
+        
+        <section id="courses" class="featured-courses">
+            <h2>Trending Courses</h2>
+            <div class="courses-grid">
+                <div class="course-card">
+                    <h3>Web Development</h3>
+                    <p>Master HTML, CSS, and JavaScript.</p>
+                </div>
+                <div class="course-card">
+                    <h3>Data Science</h3>
+                    <p>Explore Python, Machine Learning, and AI.</p>
+                </div>
+                <div class="course-card">
+                    <h3>Graphic Design</h3>
+                    <p>Unleash your creativity with design tools.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="categories">
+            <h2>Popular Categories</h2>
+            <div class="categories-grid">
+                <div class="category">Web Development</div>
+                <div class="category">Programming</div>
+                <div class="category">Business Management</div>
+                <div class="category">Photography</div>
+                <div class="category">Marketing</div>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <h2>About LearnHub</h2>
+            <p>LearnHub is a leading online learning platform designed to help students and professionals upskill in technology, business, and creative fields. With expert instructors and industry-relevant courses, we provide high-quality education accessible to everyone.</p>
+            <p>Join us today and start your journey towards success!</p>
+        </section>
+        
+        <section class="testimonials">
+            <h2>What Our Learners Say</h2>
+            <div class="testimonial">
+                <div class="testimonial-profile">
+                    <div class="placeholder"></div> 
+                </div>
+                <p>"LearnHub has been life-changing for my career!" - <strong>John Doe</strong></p>
+            </div>
+            <div class="testimonial">
+                <div class="testimonial-profile">
+                    <div class="placeholder"></div>
+                </div>
+                <p>"The courses are top-notch and easy to follow!" - <strong>Jane Smith</strong></p>
+            </div>
+            <div class="testimonial">
+                <div class="testimonial-profile">
+                    <div class="placeholder"></div> 
+                </div>
+                <p>"The best online platform for learning new skills!" - <strong>Mark Lee</strong></p>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <h2>Contact Us</h2>
+            <p>If you have any questions or need support, feel free to contact us.</p>
+            <form id="contact-form">
+                <input type="text" id="name" placeholder="Your Name" required>
+                <input type="email" id="email" placeholder="Your Email" required>
+                <textarea id="message" placeholder="Your Message" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 LearnHub. All Rights Reserved.</p>
+        <div class="social-icons">
+            <a href="#"><img src="images/facebook_icon.png" alt="Facebook"></a>
+            <a href="#"><img src="images/twitter-icon.png" alt="Twitter"></a>
+            <a href="#"><img src="images/linkedin_icon.png" alt="LinkedIn"></a>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("nav-links").classList.toggle("show");
+        }
+
+        // ✅ Smooth Scrolling for Navbar Links
+        document.querySelectorAll('nav ul li a').forEach(anchor => {
+            anchor.addEventListener('click', function(event) {
+                event.preventDefault();
+                const section = document.querySelector(this.getAttribute('href'));
+                if (section) {
+                    section.scrollIntoView({ behavior: "smooth" });
+                }
+            });
+        });
+
+        // ✅ Handle Contact Form Submission (Client-side Only)
+        document.getElementById("contact-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            alert("Thank you! Your message has been sent.");
+            this.reset();
+        });
+    </script>
+</body>
+</html>

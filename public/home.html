@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="home.css">
+    <title>Home - LearnHub</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/log.jpeg" alt="LearnHub logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="courses.html">My Courses</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="welcome-section">
+            <h1>Welcome, <span id="username">Guest</span>!</h1>
+            <p>Here's what's new for you today:</p>
+        </section>
+
+        <section id="dashboard" class="user-dashboard">
+            <h2>Your Dashboard</h2>
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>Enrolled Courses</h3>
+                    <p>You are currently enrolled in <strong id="enrolledCount">0</strong> courses.</p>
+                    <a href="courses.html">View Courses</a>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Progress</h3>
+                    <div class="progress-container">
+                        <svg class="progress-circle" width="100" height="100">
+                            <circle cx="50" cy="50" r="40" stroke="#ddd" stroke-width="8" fill="none"></circle>
+                            <circle id="progressCircle" cx="50" cy="50" r="40" stroke="#4CAF50" stroke-width="8" fill="none" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
+                        </svg>
+                        <p id="progressText">0%</p>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <h3>Featured Course</h3>
+                    <p id="featuredCourse">Loading...</p>
+                    <a href="#" id="startCourseBtn">Start Now</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="leaderboard">
+            <h2>Leaderboard & Achievements</h2>
+            <ul id="topLearners">
+                <li>🏆 Loading...</li>
+            </ul>
+        </section>
+
+        <section class="announcements">
+            <h2>Upcoming Live Sessions</h2>
+            <ul>
+                <li>🎓 Web Development Q&A - March 15th</li>
+                <li>🚀 AI & Data Science - March 20th</li>
+                <li>🔒 Cybersecurity Webinar - March 25th</li>
+            </ul>
+        </section>
+
+        <section class="recommended-courses">
+            <h2>Recommended Courses for You</h2>
+            <div class="courses-grid" id="recommendedCourses">
+                <p>Loading recommendations...</p>
+            </div>
+        </section>
+        
+    </main>
+
+    <footer>
+        <p>&copy; 2024 LearnHub. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        async function fetchUserData() {
+            try {
+                const response = await fetch("http://localhost:5000/profile", {
+                    method: "GET",
+                    credentials: "include"
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert("Session expired. Please login again.");
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                document.getElementById("username").textContent = data.name;
+                document.getElementById("enrolledCount").textContent = data.enrolledCourses.length;
+
+                // ✅ Calculate and update progress
+                const totalProgress = data.enrolledCourses.reduce((sum, course) => sum + course.progress, 0);
+                const avgProgress = data.enrolledCourses.length > 0 ? totalProgress / data.enrolledCourses.length : 0;
+                document.getElementById("progressText").textContent = `${Math.round(avgProgress)}%`;
+
+                // ✅ Animate Progress Bar
+                const progressCircle = document.getElementById("progressCircle");
+                const offset = 251.2 - (251.2 * avgProgress) / 100;
+                progressCircle.style.strokeDashoffset = offset;
+
+                // ✅ Select a random featured course
+                if (data.enrolledCourses.length > 0) {
+                    const randomCourse = data.enrolledCourses[Math.floor(Math.random() * data.enrolledCourses.length)];
+                    document.getElementById("featuredCourse").textContent = randomCourse.courseName;
+                    document.getElementById("startCourseBtn").href = `course-details.html?course=${randomCourse.courseName}`;
+                }
+
+                fetchRecommendedCourses();
+                fetchLeaderboard();
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        }
+
+        async function fetchRecommendedCourses() {
+            try {
+                const response = await fetch("http://localhost:5000/recommended-courses", {
+                    method: "GET",
+                    credentials: "include", // ✅ Ensures cookies (JWT token) are sent
+                    headers: { "Content-Type": "application/json" }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert("Error: " + data.message);
+                    return;
+                }
+
+                const coursesContainer = document.getElementById("recommendedCourses");
+                if (data.recommendedCourses.length === 0) {
+                    coursesContainer.innerHTML = "<p>No new recommendations available.</p>";
+                } else {
+                    coursesContainer.innerHTML = data.recommendedCourses.map(course => `
+                        <div class="course-card">
+                            <h3>${course.courseName}</h3>
+                            <p>${course.description}</p>
+                            <button onclick="enrollCourse('${course.courseName}')">Enroll</button>
+                        </div>
+                    `).join("");
+                }
+            } catch (error) {
+                console.error("Error fetching recommended courses:", error);
+            }
+        }
+
+        async function fetchLeaderboard() {
+            const leaderboard = ["Alice - 95% Complete", "Bob - 90% Complete", "Charlie - 85% Complete"];
+            document.getElementById("topLearners").innerHTML = leaderboard.map(user => `<li>🏆 ${user}</li>`).join("");
+        }
+
+        async function enrollCourse(courseName) {
+            try {
+                const response = await fetch("http://localhost:5000/enroll", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ courseName }),
+                    credentials: "include"
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert("Error: " + data.message);
+                    return;
+                }
+
+                alert("You have successfully enrolled in " + courseName);
+                fetchUserData();
+            } catch (error) {
+                console.error("Enrollment Error:", error);
+                alert("Failed to enroll. Please try again.");
+            }
+        }
+
+        document.getElementById("logoutBtn").addEventListener("click", async function () {
+            await fetch("http://localhost:5000/logout", {
+                method: "POST",
+                credentials: "include"
+            });
+
+            localStorage.clear();
+            alert("Logged out successfully!");
+            window.location.href = "login.html";
+        });
+
+        // ✅ Load user data when the page loads
+        document.addEventListener("DOMContentLoaded", fetchUserData);
+        document.getElementById("exploreNowBtn").addEventListener("click", fetchRecommendedCourses);
+    </script>
+</body>
+</html>

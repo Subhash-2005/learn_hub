@@ -1,0 +1,104 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #282c34;
+    color: white;
+    padding: 15px 20px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+header .logo img {
+    height: 50px;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    font-size: 16px;
+    color: white;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: #50d890;
+}
+
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: left;
+}
+
+.profile-info label {
+    font-weight: bold;
+    color: #555;
+}
+
+.profile-info input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.profile-info input:focus {
+    border-color: #50d890;
+    outline: none;
+    box-shadow: 0 0 5px rgba(80, 216, 144, 0.5);
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #50d890;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45c27e;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #282c34;
+    color: white;
+    margin-top: 30px;
+}

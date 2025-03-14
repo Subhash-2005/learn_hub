@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - LearnHub</title>
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+    <div class="profile-container">
+        <h1>User Profile</h1>
+        <div id="error-message" class="error-message"></div>
+
+        <label for="profileName">Name:</label>
+        <input type="text" id="profileName" placeholder="Enter your name">
+
+        <label for="profileEmail">Email:</label>
+        <input type="email" id="profileEmail" disabled>
+
+        <button id="saveChangesBtn">Save Changes</button>
+        <button id="logoutBtn">Logout</button>
+    </div>
+
+    <script>
+        async function loadUserProfile() {
+            try {
+                const response = await fetch("http://localhost:5000/profile", {
+                    method: "GET",
+                    credentials: "include"
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert("Session expired. Please login again.");
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                // ✅ Populate fields with user data
+                document.getElementById("profileName").value = data.name;
+                document.getElementById("profileEmail").value = data.email;
+
+                // ✅ Save user data to localStorage
+                localStorage.setItem("loggedInUser", JSON.stringify(data));
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+            }
+        }
+
+        document.getElementById("saveChangesBtn").addEventListener("click", async function() {
+            const newName = document.getElementById("profileName").value.trim();
+            if (!newName) {
+                alert("Name cannot be empty.");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:5000/update-profile", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: newName }),
+                    credentials: "include"
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(data.message);
+                    return;
+                }
+
+                alert("Profile updated successfully!");
+                localStorage.setItem("loggedInUser", JSON.stringify(data));
+                document.getElementById("profileName").value = data.name;
+            } catch (error) {
+                console.error("Profile Update Error:", error);
+            }
+        });
+
+        document.getElementById("logoutBtn").addEventListener("click", async function() {
+            await fetch("http://localhost:5000/logout", {
+                method: "POST",
+                credentials: "include"
+            });
+
+            localStorage.clear();
+            alert("Logged out successfully!");
+            window.location.href = "login.html";
+        });
+
+        document.addEventListener("DOMContentLoaded", loadUserProfile);
+    </script>
+</body>
+</html>

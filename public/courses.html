@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Courses - LearnHub</title>
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/log.jpeg" alt="LearnHub Logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="home.html">Dashboard</a></li>
+                <li><a href="courses.html">My Courses</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="courses-section">
+            <h2>My Enrolled Courses</h2>
+            <div class="courses-grid" id="enrolledCourses"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 LearnHub. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+    try {
+        const response = await fetch("http://localhost:5000/profile", {
+            method: "GET",
+            credentials: "include"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert("Session expired. Please login again.");
+            window.location.href = "login.html";
+            return;
+        }
+
+        const coursesContainer = document.getElementById("enrolledCourses");
+
+        if (data.enrolledCourses.length === 0) {
+            coursesContainer.innerHTML = "<p>You haven't enrolled in any courses yet.</p>";
+        } else {
+            coursesContainer.innerHTML = data.enrolledCourses.map(course => `
+                <div class="course-card">
+                    <h3>${course.courseName}</h3>
+                    <p>Progress: ${course.progress}%</p>
+                    <progress value="${course.progress}" max="100"></progress>
+                    <button onclick="continueCourse('${course.courseName}')">Continue Learning</button>
+                </div>
+            `).join("");
+        }
+    } catch (error) {
+        console.error("Error fetching enrolled courses:", error);
+        alert("Failed to load courses. Please try again.");
+    }
+});
+
+function continueCourse(courseName) {
+    window.location.href = `course-details.html?course=${encodeURIComponent(courseName)}`;
+}
+
+
+    </script>
+</body>
+</html>

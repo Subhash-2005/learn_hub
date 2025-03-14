@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Content - LearnHub</title>
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <img src="images/log.jpeg" alt="LearnHub Logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="home.html">Dashboard</a></li>
+                <li><a href="courses.html">My Courses</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="course-content">
+            <h2 id="course-title">Loading Course...</h2>
+            <p id="course-description">Please wait while we load the course details.</p>
+
+            <div class="video-container">
+                <iframe id="course-video" width="100%" height="400px" frameborder="0" allowfullscreen></iframe>
+            </div>
+
+            <h3>Lesson Content</h3>
+            <ul id="lesson-list">
+                <!-- Lessons will be loaded dynamically -->
+            </ul>
+
+            <progress id="course-progress" value="0" max="100"></progress>
+            <p>Progress: <span id="progress-text">0%</span> completed</p>
+
+            <button id="completeLessonBtn">Mark as Complete</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 LearnHub. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function() {
+            const params = new URLSearchParams(window.location.search);
+            const courseName = params.get("course");
+
+            if (!courseName) {
+                document.getElementById("course-title").textContent = "Course Not Found";
+                document.getElementById("course-description").textContent = "Please select a valid course.";
+                return;
+            }
+
+            // ✅ Course Data (Includes Python & React.js)
+            const courses = {
+                "Web Development": {
+                    title: "Web Development",
+                    description: "Master HTML, CSS, and JavaScript.",
+                    videoUrl: "https://www.youtube.com/embed/videoseries?list=PLu0W_9lII9agq5TrH9XLIKQvv0iaF2X3w",
+                    lessons: ["Introduction to HTML", "CSS Basics", "JavaScript Fundamentals"]
+                },
+                "Data Science": {
+                    title: "Data Science",
+                    description: "Learn Python, Machine Learning, and AI.",
+                    videoUrl: "https://www.youtube.com/embed/videoseries?list=PLeo1K3hjS3us_ELKYSj_Fth2tIEkdKXvV",
+                    lessons: ["Python Basics", "Data Visualization", "Machine Learning Models", "Deep Learning"]
+                },
+                "Cybersecurity Basics": {
+                    title: "Cybersecurity Basics",
+                    description: "Learn to protect systems from vulnerabilities.",
+                    videoUrl: "https://www.youtube.com/embed/videoseries?list=PL9ooVrP1hQOGPQVeapGsJCktzIO4DtI4_",
+                    lessons: ["Network Security", "Ethical Hacking Basics", "Malware Analysis", "Incident Response"]
+                },
+                "Python for Beginners": {
+                    title: "Python for Beginners",
+                    description: "Learn Python from scratch, covering syntax, data structures, and object-oriented programming.",
+                    videoUrl: "https://www.youtube.com/embed/UrsmFxEIp5k?si=Kg-76-9wfJuv1xMb",
+                    lessons: ["Introduction to Python", "Data Types & Variables", "Control Flow", "Functions & Modules", "OOP in Python"]
+                },
+                "React.js": {
+                    title: "React.js",
+                    description: "Learn React.js for building modern web applications.",
+                    videoUrl: "https://www.youtube.com/embed/RVFAyFWO4go?si=tMZYuZ6Co_CrgwOf",
+                    lessons: ["React Basics", "JSX & Components", "State & Props", "React Hooks", "Building a Project"]
+                }
+            };
+
+            const selectedCourse = courses[courseName];
+
+            if (selectedCourse) {
+                document.getElementById("course-title").textContent = selectedCourse.title;
+                document.getElementById("course-description").textContent = selectedCourse.description;
+                document.getElementById("course-video").src = selectedCourse.videoUrl;
+
+                document.getElementById("lesson-list").innerHTML = selectedCourse.lessons
+                    .map(lesson => `<li>${lesson}</li>`)
+                    .join("");
+
+                fetchProgress(courseName);
+            } else {
+                document.getElementById("course-title").textContent = "Course Not Found";
+                document.getElementById("course-description").textContent = "Invalid course selected.";
+            }
+
+            // ✅ Fetch Progress from Server
+            async function fetchProgress(courseName) {
+                try {
+                    const response = await fetch("http://localhost:5000/profile", {
+                        method: "GET",
+                        credentials: "include"
+                    });
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        alert("Session expired. Please login again.");
+                        window.location.href = "login.html";
+                        return;
+                    }
+
+                    const userCourse = data.enrolledCourses.find(course => course.courseName === courseName);
+                    if (userCourse) {
+                        document.getElementById("course-progress").value = userCourse.progress;
+                        document.getElementById("progress-text").textContent = `${userCourse.progress}%`;
+                    }
+                } catch (error) {
+                    console.error("Error fetching progress:", error);
+                }
+            }
+            document.getElementById("completeLessonBtn").addEventListener("click", async function() {
+    const params = new URLSearchParams(window.location.search);
+    const courseName = params.get("course");
+
+    if (!courseName) {
+        alert("Invalid course. Please refresh the page.");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:5000/mark-complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ courseName }) // ✅ Send correct course name
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert("Lesson marked as complete!");
+            document.getElementById("course-progress").value = 100;
+            document.getElementById("progress-text").textContent = "100% Completed";
+        } else {
+            alert("Error: " + data.message);
+        }
+    } catch (error) {
+        console.error("Error updating progress:", error);
+        alert("Server error. Try again later.");
+    }
+});
+
+
+            // ✅ Logout Functionality
+            document.getElementById("logoutBtn").addEventListener("click", async function () {
+                await fetch("http://localhost:5000/logout", {
+                    method: "POST",
+                    credentials: "include"
+                });
+
+                localStorage.clear();
+                alert("Logged out successfully!");
+                window.location.href = "login.html";
+            });
+        });
+    </script>
+
+</body>
+</html>

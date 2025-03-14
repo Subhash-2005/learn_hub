@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Sign Up - LearnHub</title>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Sign Up</h1>
+        <div id="error-message" class="error-message"></div>
+        <form id="signupForm">
+            <div class="form-group">
+                <input type="text" id="name" placeholder="Name" required>
+            </div>
+            <div class="form-group">
+                <input type="email" id="email" placeholder="Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="up">Sign Up</button>
+        </form>
+        <p>Already have an account? <a href="login.html">Login</a></p>
+        <div class="divider">
+            <span>or</span>
+        </div>
+        <a href="https://google.com"><button class="goo">Sign up with Google</button></a>
+    </div>
+
+    <script>
+        document.getElementById("signupForm").addEventListener("submit", async function(event) {
+            event.preventDefault(); 
+
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const errorMessage = document.getElementById('error-message');
+
+            errorMessage.style.display = "none";
+            errorMessage.textContent = '';
+
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                errorMessage.textContent = "Please enter a valid email address.";
+                errorMessage.style.display = "block";
+                return false;
+            }
+            if (password.length < 8) {
+                errorMessage.style.display = 'block';
+                errorMessage.textContent = "Password must be at least 8 characters long.";
+                return false;
+            }
+
+            try {
+                const response = await fetch("http://localhost:5000/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorMessage.textContent = data.message;
+                    errorMessage.style.display = "block";
+                    return false;
+                }
+
+                alert("Signup successful! Please log in.");
+                window.location.href = "login.html";
+            } catch (error) {
+                errorMessage.textContent = "Server error. Try again later.";
+                errorMessage.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>
