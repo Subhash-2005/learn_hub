@@ -22,8 +22,6 @@
             <div class="form-group">
                 <input type="password" id="password" placeholder="Password" required>
             </div>
-
-            <!-- ✅ Security Question Dropdown -->
             <div class="form-group">
                 <select id="securityQuestion" required>
                     <option value="" disabled selected>Select a security question</option>
@@ -33,8 +31,6 @@
                     <option value="What is your favorite food?">What is your favorite food?</option>
                 </select>
             </div>
-
-            <!-- ✅ Security Answer Input -->
             <div class="form-group">
                 <input type="text" id="securityAnswer" placeholder="Answer to security question" required>
             </div>
@@ -62,23 +58,17 @@
 
             errorMessage.style.display = "none";
             errorMessage.textContent = '';
-
-            // ✅ Email validation
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailPattern.test(email)) {
                 errorMessage.textContent = "Please enter a valid email address.";
                 errorMessage.style.display = "block";
                 return false;
             }
-
-            // ✅ Password length validation
             if (password.length < 8) {
                 errorMessage.style.display = 'block';
                 errorMessage.textContent = "Password must be at least 8 characters long.";
                 return false;
             }
-
-            // ✅ Security question validation
             if (!securityQuestion) {
                 errorMessage.textContent = "Please select a security question.";
                 errorMessage.style.display = "block";
@@ -92,7 +82,7 @@
             }
 
             try {
-                // ✅ Send data to backend
+ 
                 const response = await fetch("http://localhost:5000/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
