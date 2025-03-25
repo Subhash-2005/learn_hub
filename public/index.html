@@ -29,15 +29,13 @@
             <a href="signup.html"><button class="signup-btn">Sign Up</button></a>
         </div>
     </header>
-    
     <main>
         <section id="home" class="hero">
             <div class="hero-text">
                 <h1>Welcome to LearnHub</h1>
                 <p>Your ultimate platform to learn, grow, and succeed.</p>
             </div>
-        </section>
-        
+        </section> 
         <section id="courses" class="featured-courses">
             <h2>Trending Courses</h2>
             <div class="courses-grid">
@@ -55,7 +53,6 @@
                 </div>
             </div>
         </section>
-
         <section class="categories">
             <h2>Popular Categories</h2>
             <div class="categories-grid">
@@ -66,7 +63,6 @@
                 <div class="category">Marketing</div>
             </div>
         </section>
-
         <section id="about" class="about">
             <h2>About LearnHub</h2>
             <p>LearnHub is a leading online learning platform designed to help students and professionals upskill in technology, business, and creative fields. With expert instructors and industry-relevant courses, we provide high-quality education accessible to everyone.</p>
@@ -106,7 +102,6 @@
             </form>
         </section>
     </main>
-
     <footer>
         <p>&copy; 2024 LearnHub. All Rights Reserved.</p>
         <div class="social-icons">
@@ -115,13 +110,10 @@
             <a href="#"><img src="images/linkedin_icon.png" alt="LinkedIn"></a>
         </div>
     </footer>
-
     <script>
         function toggleMenu() {
             document.getElementById("nav-links").classList.toggle("show");
         }
-
-        // ✅ Smooth Scrolling for Navbar Links
         document.querySelectorAll('nav ul li a').forEach(anchor => {
             anchor.addEventListener('click', function(event) {
                 event.preventDefault();
@@ -131,8 +123,6 @@
                 }
             });
         });
-
-        // ✅ Handle Contact Form Submission (Client-side Only)
         document.getElementById("contact-form").addEventListener("submit", function(event) {
             event.preventDefault();
             alert("Thank you! Your message has been sent.");
