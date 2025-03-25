@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>Sign Up - LearnHub</title>
 </head>
+
 <body>
     <div class="form-container">
         <h1>Sign Up</h1>
@@ -20,8 +22,26 @@
             <div class="form-group">
                 <input type="password" id="password" placeholder="Password" required>
             </div>
+
+            <!-- ✅ Security Question Dropdown -->
+            <div class="form-group">
+                <select id="securityQuestion" required>
+                    <option value="" disabled selected>Select a security question</option>
+                    <option value="What is your favorite color?">What is your favorite color?</option>
+                    <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                    <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                    <option value="What is your favorite food?">What is your favorite food?</option>
+                </select>
+            </div>
+
+            <!-- ✅ Security Answer Input -->
+            <div class="form-group">
+                <input type="text" id="securityAnswer" placeholder="Answer to security question" required>
+            </div>
+
             <button type="submit" class="up">Sign Up</button>
         </form>
+
         <p>Already have an account? <a href="login.html">Login</a></p>
         <div class="divider">
             <span>or</span>
@@ -30,34 +50,53 @@
     </div>
 
     <script>
-        document.getElementById("signupForm").addEventListener("submit", async function(event) {
-            event.preventDefault(); 
+        document.getElementById("signupForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
 
             const name = document.getElementById("name").value.trim();
             const email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value.trim();
+            const securityQuestion = document.getElementById("securityQuestion").value;
+            const securityAnswer = document.getElementById("securityAnswer").value.trim();
             const errorMessage = document.getElementById('error-message');
 
             errorMessage.style.display = "none";
             errorMessage.textContent = '';
 
+            // ✅ Email validation
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailPattern.test(email)) {
                 errorMessage.textContent = "Please enter a valid email address.";
                 errorMessage.style.display = "block";
                 return false;
             }
+
+            // ✅ Password length validation
             if (password.length < 8) {
                 errorMessage.style.display = 'block';
                 errorMessage.textContent = "Password must be at least 8 characters long.";
                 return false;
             }
 
+            // ✅ Security question validation
+            if (!securityQuestion) {
+                errorMessage.textContent = "Please select a security question.";
+                errorMessage.style.display = "block";
+                return false;
+            }
+
+            if (securityAnswer.length < 3) {
+                errorMessage.textContent = "Security answer must be at least 3 characters long.";
+                errorMessage.style.display = "block";
+                return false;
+            }
+
             try {
+                // ✅ Send data to backend
                 const response = await fetch("http://localhost:5000/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name, email, password })
+                    body: JSON.stringify({ name, email, password, securityQuestion, securityAnswer })
                 });
 
                 const data = await response.json();
@@ -77,4 +116,5 @@
         });
     </script>
 </body>
+
 </html>

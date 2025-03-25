@@ -6,10 +6,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-
-
-
 const app = express();
+
+// ✅ CORS Configuration
 app.use(cors({
     origin: "http://localhost:5500", // Your frontend origin
     credentials: true // Allow credentials (cookies)
@@ -30,7 +29,9 @@ const UserSchema = new mongoose.Schema({
     name: String,
     email: String,
     password: String,
-    enrolledCourses: [{ courseName: String, progress: Number }]
+    enrolledCourses: [{ courseName: String, progress: Number }],
+    securityQuestion: { type: String, required: true }, // Security question
+    securityAnswer: { type: String, required: true }  // Hashed answer
 });
 const User = mongoose.model("User", UserSchema);
 
@@ -50,7 +51,7 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-// ✅ Default Route - Serve `index.html`
+// ✅ Serve HTML on Root Route
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -58,13 +59,29 @@ app.get("/", (req, res) => {
 // ✅ User Registration API
 app.post("/register", async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, securityQuestion, securityAnswer } = req.body;
+
+        // Check if user already exists
         const existingUser = await User.findOne({ email });
-        if (existingUser) return res.status(400).json({ message: "User already exists" });
+        if (existingUser) {
+            return res.status(400).json({ message: "User already exists" });
+        }
 
+        // Hash password and security answer
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ name, email, password: hashedPassword, enrolledCourses: [] });
+        const hashedAnswer = await bcrypt.hash(securityAnswer, 10);
 
+        // Create new user with security question and answer
+        const newUser = new User({
+            name,
+            email,
+            password: hashedPassword,
+            securityQuestion,
+            securityAnswer: hashedAnswer,
+            enrolledCourses: []
+        });
+
+        // Save user to database
         await newUser.save();
         res.json({ message: "User registered successfully" });
     } catch (error) {
@@ -101,7 +118,6 @@ app.post("/login", async (req, res) => {
     }
 });
 
-
 // ✅ Logout API
 app.post("/logout", (req, res) => {
     res.clearCookie("token");
@@ -125,6 +141,76 @@ app.post("/update-profile", verifyToken, async (req, res) => {
         res.status(500).json({ message: "Server Error. Please try again later." });
     }
 });
+
+// ✅ Forgot Password: Get Security Question
+app.post("/forgot-password", async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Send the security question for validation
+        res.status(200).json({
+            question: user.securityQuestion,
+            message: "Answer the security question to reset your password."
+        });
+    } catch (error) {
+        console.error("Error finding user:", error);
+        res.status(500).json({ message: "Error finding user" });
+    }
+});
+
+// ✅ Validate Security Answer
+app.post("/validate-answer", async (req, res) => {
+    const { email, securityAnswer } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Compare hashed answer
+        const isMatch = await bcrypt.compare(securityAnswer, user.securityAnswer);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Incorrect answer" });
+        }
+
+        // Send success response to allow password reset
+        res.status(200).json({ message: "Answer validated. Proceed to reset your password." });
+    } catch (error) {
+        console.error("Error validating answer:", error);
+        res.status(500).json({ message: "Error validating answer" });
+    }
+});
+
+// ✅ Reset Password
+app.post("/reset-password", async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the password
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: "Password reset successfully" });
+    } catch (error) {
+        console.error("Error resetting password:", error);
+        res.status(500).json({ message: "Error resetting password" });
+    }
+});
+
 
 app.post("/update-progress", verifyToken, async (req, res) => {
     try {
