@@ -20,18 +20,15 @@
             </ul>
         </nav>
     </header>
-
     <main>
         <section class="courses-section">
             <h2>My Enrolled Courses</h2>
             <div class="courses-grid" id="enrolledCourses"></div>
         </section>
     </main>
-
     <footer>
         <p>&copy; 2024 LearnHub. All Rights Reserved.</p>
     </footer>
-
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
     try {
@@ -39,17 +36,13 @@
             method: "GET",
             credentials: "include"
         });
-
         const data = await response.json();
-
         if (!response.ok) {
             alert("Session expired. Please login again.");
             window.location.href = "login.html";
             return;
         }
-
         const coursesContainer = document.getElementById("enrolledCourses");
-
         if (data.enrolledCourses.length === 0) {
             coursesContainer.innerHTML = "<p>You haven't enrolled in any courses yet.</p>";
         } else {
@@ -67,12 +60,9 @@
         alert("Failed to load courses. Please try again.");
     }
 });
-
 function continueCourse(courseName) {
     window.location.href = `course-details.html?course=${encodeURIComponent(courseName)}`;
 }
-
-
     </script>
 </body>
 </html>
