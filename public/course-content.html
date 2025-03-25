@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="home.css">
 </head>
 <body>
-
     <header>
         <div class="logo">
             <img src="images/log.jpeg" alt="LearnHub Logo">
@@ -21,44 +20,34 @@
             </ul>
         </nav>
     </header>
-
     <main class="container">
         <section class="course-content">
             <h2 id="course-title">Loading Course...</h2>
             <p id="course-description">Please wait while we load the course details.</p>
-
             <div class="video-container">
                 <iframe id="course-video" width="100%" height="400px" frameborder="0" allowfullscreen></iframe>
             </div>
-
             <h3>Lesson Content</h3>
             <ul id="lesson-list">
                 <!-- Lessons will be loaded dynamically -->
             </ul>
-
             <progress id="course-progress" value="0" max="100"></progress>
             <p>Progress: <span id="progress-text">0%</span> completed</p>
-
             <button id="completeLessonBtn">Mark as Complete</button>
         </section>
     </main>
-
     <footer>
         <p>&copy; 2024 LearnHub. All Rights Reserved.</p>
     </footer>
-
     <script>
         document.addEventListener("DOMContentLoaded", async function() {
             const params = new URLSearchParams(window.location.search);
             const courseName = params.get("course");
-
             if (!courseName) {
                 document.getElementById("course-title").textContent = "Course Not Found";
                 document.getElementById("course-description").textContent = "Please select a valid course.";
                 return;
             }
-
-            // ✅ Course Data (Includes Python & React.js)
             const courses = {
                 "Web Development": {
                     title: "Web Development",
@@ -91,9 +80,7 @@
                     lessons: ["React Basics", "JSX & Components", "State & Props", "React Hooks", "Building a Project"]
                 }
             };
-
             const selectedCourse = courses[courseName];
-
             if (selectedCourse) {
                 document.getElementById("course-title").textContent = selectedCourse.title;
                 document.getElementById("course-description").textContent = selectedCourse.description;
@@ -108,8 +95,6 @@
                 document.getElementById("course-title").textContent = "Course Not Found";
                 document.getElementById("course-description").textContent = "Invalid course selected.";
             }
-
-            // ✅ Fetch Progress from Server
             async function fetchProgress(courseName) {
                 try {
                     const response = await fetch("http://localhost:5000/profile", {
@@ -117,13 +102,11 @@
                         credentials: "include"
                     });
                     const data = await response.json();
-                    
                     if (!response.ok) {
                         alert("Session expired. Please login again.");
                         window.location.href = "login.html";
                         return;
                     }
-
                     const userCourse = data.enrolledCourses.find(course => course.courseName === courseName);
                     if (userCourse) {
                         document.getElementById("course-progress").value = userCourse.progress;
@@ -136,12 +119,10 @@
             document.getElementById("completeLessonBtn").addEventListener("click", async function() {
     const params = new URLSearchParams(window.location.search);
     const courseName = params.get("course");
-
     if (!courseName) {
         alert("Invalid course. Please refresh the page.");
         return;
     }
-
     try {
         const response = await fetch("http://localhost:5000/mark-complete", {
             method: "POST",
@@ -149,7 +130,6 @@
             credentials: "include",
             body: JSON.stringify({ courseName }) // ✅ Send correct course name
         });
-
         const data = await response.json();
         if (response.ok) {
             alert("Lesson marked as complete!");
@@ -163,10 +143,7 @@
         alert("Server error. Try again later.");
     }
 });
-
-
-            // ✅ Logout Functionality
-            document.getElementById("logoutBtn").addEventListener("click", async function () {
+     document.getElementById("logoutBtn").addEventListener("click", async function () {
                 await fetch("http://localhost:5000/logout", {
                     method: "POST",
                     credentials: "include"
@@ -176,8 +153,8 @@
                 alert("Logged out successfully!");
                 window.location.href = "login.html";
             });
-        });
+        });        
+           
     </script>
-
 </body>
 </html>
