@@ -20,7 +20,6 @@
             </ul>
         </nav>
     </header>
-
     <main class="container">
         <section class="course-details">
             <h2 id="course-title">Loading...</h2>
@@ -33,43 +32,33 @@
             <button id="continueBtn" style="display: none;">Continue Learning</button>
         </section>
     </main>
-
     <footer>
         <p>&copy; 2024 LearnHub. All Rights Reserved.</p>
     </footer>
-
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
             const params = new URLSearchParams(window.location.search);
-            const courseName = params.get("course");  // Get course name from URL
-
+            const courseName = params.get("course");  
             if (!courseName) {
                 document.getElementById("course-title").textContent = "Course Not Found";
                 document.getElementById("course-description").textContent = "Please select a valid course.";
                 document.getElementById("enrollBtn").style.display = "none";
                 return;
             }
-
-            // ✅ Fetch course details from the backend
             try {
                 const response = await fetch(`http://localhost:5000/course-details?name=${encodeURIComponent(courseName)}`, {
                     method: "GET",
                     credentials: "include"
                 });
-
                 const data = await response.json();
                 if (!response.ok) {
                     throw new Error(data.message);
                 }
-
-                // ✅ Populate course details
                 document.getElementById("course-title").textContent = data.title;
                 document.getElementById("course-description").textContent = data.description;
                 document.getElementById("course-learning").innerHTML = data.learning
                     .map(topic => `<li>${topic}</li>`)
                     .join("");
-
-                // ✅ Fetch enrolled courses & progress
                 const profileResponse = await fetch("http://localhost:5000/profile", {
                     method: "GET",
                     credentials: "include"
@@ -79,25 +68,20 @@
                 if (!profileResponse.ok) {
                     throw new Error(profileData.message);
                 }
-
                 const enrolledCourse = profileData.enrolledCourses.find(course => course.courseName === data.title);
                 if (enrolledCourse) {
                     document.getElementById("enrollBtn").style.display = "none";
                     document.getElementById("continueBtn").style.display = "inline-block";
                     updateProgress(enrolledCourse.progress);
                 }
-
             } catch (error) {
                 console.error("Error fetching course details:", error);
                 document.getElementById("course-title").textContent = "Course Not Found";
                 document.getElementById("course-description").textContent = "Please try again later.";
             }
         });
-
-        // ✅ Enroll in a Course
         document.getElementById("enrollBtn").addEventListener("click", async function () {
             const courseName = document.getElementById("course-title").textContent;
-
             try {
                 const response = await fetch("http://localhost:5000/enroll", {
                     method: "POST",
@@ -105,39 +89,31 @@
                     body: JSON.stringify({ courseName }),
                     credentials: "include"
                 });
-
                 const data = await response.json();
                 if (!response.ok) {
                     throw new Error(data.message);
                 }
-
                 alert("Successfully enrolled in " + courseName);
                 document.getElementById("enrollBtn").style.display = "none";
                 document.getElementById("continueBtn").style.display = "inline-block";
-                updateProgress(0); // Set initial progress
+                updateProgress(0); 
             } catch (error) {
                 alert("Enrollment failed: " + error.message);
             }
         });
-
-        // ✅ Continue Learning - Redirect to Course Content
         document.getElementById("continueBtn").addEventListener("click", function () {
             const courseName = document.getElementById("course-title").textContent;
             window.location.href = `course-content.html?course=${encodeURIComponent(courseName)}`;
         });
-
         function updateProgress(progress) {
             document.getElementById("course-progress").value = progress;
             document.getElementById("progress-text").textContent = progress + "%";
         }
-
-        // ✅ Logout Functionality
         document.getElementById("logoutBtn").addEventListener("click", async function () {
             await fetch("http://localhost:5000/logout", {
                 method: "POST",
                 credentials: "include"
             });
-
             localStorage.clear();
             alert("Logged out successfully!");
             window.location.href = "login.html";
